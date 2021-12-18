@@ -1,210 +1,278 @@
+import tkinter as tk
+from tkinter import ttk
+import tkinter
+from tkinter.constants import OFF
+import pymysql
 from tkinter import *
 from PIL import Image
 from PIL import ImageTk
 import cv2
 import imutils
+from datetime import datetime
 
-def btn_clicked():
-    print("Button Clicked")
+class App(ttk.Frame):
+    def __init__(self, parent):
+        ttk.Frame.__init__(self)
 
-def iniciar():
-    global cap
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    visualizar()
+        # Make the app responsive
+        for index in [0, 1, 2]:
+            self.columnconfigure(index=index, weight=1)
+            self.rowconfigure(index=index, weight=1)
 
-def visualizar():
-    global cap
-    if cap is not None:
-        ret, frame = cap.read()
-        if ret == True:
-            frame = imutils.resize(frame, width=640)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            im = Image.fromarray(frame)
-            img = ImageTk.PhotoImage(image=im)
-            lblVideo.configure(image=img)
-            lblVideo.image = img
-            lblVideo.after(10, visualizar)
-        else:
-            lblVideo.image = ""
+        # Create value lists
+        self.option_menu_list = ["", "OptionMenu", "Option 1", "Option 2"]
+        self.combo_list = ["Combobox", "Editable item 1", "Editable item 2"]
+        self.readonly_combo_list = ["Readonly combobox", "Item 1", "Item 2"]
+
+        # Create control variables
+        self.var_0 = tk.BooleanVar()
+        self.var_1 = tk.BooleanVar(value=True)
+        self.var_2 = tk.BooleanVar()
+        self.var_3 = tk.IntVar(value=2)
+        self.var_4 = tk.StringVar(value=self.option_menu_list[1])
+        self.var_5 = tk.DoubleVar(value=75.0)
+
+        # Create widgets :)
+        self.setup_widgets()
+
+    def setup_widgets(self):
+        global Placa
+        global Nombre
+        global Email
+
+        class DataBase:            
+            
+            def __init__(self):
+                self.connection=pymysql.connect(
+                    host='MYSQL5034.site4now.net',
+                    user='a7df43_atzel09',
+                    password='1q2w3e4r',
+                    db='db_a7df43_atzel09'
+                )
+                self.cursor = self.connection.cursor()
+                print("--------------")
+                print("Conexion Exitosa!!!")
+                print("#################")
+
+            def show_one_record(self):                
+                sql="select * from usuarios_ocacionales where Placa LIKE 'HAB2649'"
+                try:
+                    self.cursor.execute(sql)
+                    Autos = self.cursor.fetchone()   
+                    Ticket = Autos[0]                                     
+                    Placa = Autos[1]
+                    Ingreso = Autos[2]                    
+                    Salida = Autos[3]
+                    Valor = Autos[4]
+                    ShowPlaca.delete(0, 'end')
+                    ShowPlaca.insert(1, Autos[1])
+                    ValorTime.delete(0, 'end')
+                    now = datetime.now()
+                    date_time = now.strftime("%m/%d/%Y %H:%M:%S")
+                    ValorTime.insert(1, date_time)
+                    # ShowNombre.delete(0, 'end')
+                    # ShowNombre.insert(1, Autos[1])
+                    # ShowEmail.delete(0, 'end')
+                    # ShowEmail.insert(1, Autos[2])
+                    print("_______________")
+                    print("Ticket:",Ticket)
+                    print("Placa:",Placa)
+                    print("Ingreso:",Ingreso)
+                    print("Salida:",Salida)
+                    print("Valor:",Valor)
+                    print("_______________")
+                    return
+                except Exception as e:
+                    raise
+        obj_db1 = DataBase()
+
+        # Panedwindow
+        self.paned = ttk.PanedWindow(self)
+        self.paned.grid(row=0, column=0, pady=(0, 0), sticky="nsew", rowspan=3)
+
+
+        # Notebook, pane #2
+        self.pane_1 = ttk.Frame(self.paned, padding=5)
+        self.paned.add(self.pane_1, weight=3)
+
+        # Notebook, pane #2
+        self.notebook = ttk.Notebook(self.pane_1)
+        self.notebook.pack(fill="both", expand=True)
+
+        # Tab #1
+        self.tab_1 = ttk.Frame(self.notebook)
+        for index in [0, 1]:
+            self.tab_1.columnconfigure(index=index, weight=1)
+            self.tab_1.rowconfigure(index=index, weight=5)
+        self.notebook.add(self.tab_1, text="Camara")
+
+        #Imagenvideos
+        def iniciar():
+            global cap
+            cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+            visualizar()
+        def visualizar():
+            global cap
+            if cap is not None:
+                ret, frame = cap.read()
+                if ret == True:
+                    frame = imutils.resize(frame, width=640)
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+                    im = Image.fromarray(frame)
+                    img = ImageTk.PhotoImage(image=im)
+
+                    labelimg.configure(image=img)
+                    labelimg.image = img
+                    labelimg.after(10, visualizar)
+                else:
+                    labelimg.image = ""
+                    cap.release()
+        def finalizar():
+            global cap
             cap.release()
-
-def finalizar():
-    global cap
-    cap.release()
-
-window = Tk()
-
-lblInfoVideoPath = Label(window, text="Aún no se ha seleccionado un video")
-lblInfoVideoPath.grid(column=1, row=1)
-
-window.geometry("996x720")
-window.configure(bg = "#f2f2f2")
-canvas = Canvas(
-    window,
-    bg = "#f2f2f2",
-    height = 720,
-    width = 996,
-    bd = 0,
-    highlightthickness = 0,
-    relief = "ridge")
-canvas.place(x = 0, y = 0)
-
-background_img = PhotoImage(file = f"background.png")
-background = canvas.create_image(
-    883.5, 360.0,
-    image=background_img)
-
-img0 = PhotoImage(file = f"img0.png")
-b0 = Button(
-    image = img0,
-    borderwidth = 0,
-    highlightthickness = 0,
-    command = iniciar,
-    relief = "flat")
-
-b0.place(
-    x = 96, y = 597,
-    width = 170,
-    height = 68)
-
-img1 = PhotoImage(file = f"img1.png")
-b1 = Button(
-    image = img1,
-    borderwidth = 0,
-    highlightthickness = 0,
-    command = btn_clicked,
-    relief = "flat")
-
-b1.place(
-    x = 392, y = 437,
-    width = 170,
-    height = 68)
-
-img2 = PhotoImage(file = f"img2.png")
-b2 = Button(
-    image = img2,
-    borderwidth = 0,
-    highlightthickness = 0,
-    command = btn_clicked,
-    relief = "flat")
-
-b2.place(
-    x = 82, y = 436,
-    width = 170,
-    height = 68)
-
-img3 = PhotoImage(file = f"img3.png")
-b3 = Button(
-    image = img3,
-    borderwidth = 0,
-    highlightthickness = 0,
-    command = btn_clicked,
-    relief = "flat")
-
-b3.place(
-    x = 799, y = 231,
-    width = 170,
-    height = 68)
-
-img4 = PhotoImage(file = f"img4.png")
-b4 = Button(
-    image = img4,
-    borderwidth = 0,
-    highlightthickness = 0,
-    command = btn_clicked,
-    relief = "flat")
-
-b4.place(
-    x = 799, y = 564,
-    width = 170,
-    height = 68)
-
-canvas.create_text(
-    498.5, 46.0,
-    text = "Sistema de control de placas",
-    fill = "#000000",
-    font = ("None", int(24.0)))
+        cap = None
+        # Label
+        labelimg = self.label = ttk.Label(                     
+            self.tab_1,           
+        )
+        labelimg.pack()
+        self.label.grid(row=0, column=0, pady=10, columnspan=2)
 
 
-img023 = PhotoImage(file = f"img4.png")
+        # Label
+        self.label = ttk.Label(
+            self.tab_1,
+            text="Entrada / Salida",
+            justify="center",
+            font=("-size", 15, "-weight", "bold"),
+        )
+        self.label.grid(row=2, column=0, pady=10, columnspan=2, sticky="nsew")
 
-# lblVideo = Label(window)(
-#     139.5, 200.0)
+        # Button
+        self.button = ttk.Button(self.tab_1, text="On / Off", command=iniciar)
+        self.button.grid(row=2, column=1, padx=5, pady=10, sticky="nsew")
 
+        # Tab #2
+        self.tab_2 = ttk.Frame(self.notebook)
+        self.notebook.add(self.tab_2, text="Reporte de concurrentes")
 
-canvas.create_text(
-    139.5, 413.0,
-    text = "Entrasdda",
-    fill = "#000000",
-    font = ("None", int(24.0)))
+        
 
-canvas.create_text(
-    441.0, 413.0,
-    text = "Salida",
-    fill = "#000000",
-    font = ("None", int(24.0)))
+        # Tab #3
+        self.tab_3 = ttk.Frame(self.notebook)
+        self.notebook.add(self.tab_3, text="Reporte de ticekt ocacional")
 
-
-background_img1 = PhotoImage(file = f"img5.png")
-background = canvas.create_image(
-    883.5, 128.5,
-    image=background_img1)
+        # Sizegrip
+        self.sizegrip = ttk.Sizegrip(self)
+        self.sizegrip.grid(row=100, column=100, padx=(0, 5), pady=(0, 5))
 
 
 
-canvas.create_text(
-    883.5, 152.5,
-    text = "#xreiy0",
-    fill = "#000000",
-    font = ("None", int(18.0)))
-
-canvas.create_text(
-    884.0, 105.0,
-    text = "Ticket",
-    fill = "#000000",
-    font = ("None", int(24.0)))
-
-canvas.create_text(
-    883.5, 388.5,
-    text = "12/12/2021 6:00 am",
-    fill = "#000000",
-    font = ("None", int(18.0)))
-
-canvas.create_text(
-    884.0, 505.5,
-    text = "12/12/2021 18:00 pm",
-    fill = "#000000",
-    font = ("None", int(18.0)))
-
-canvas.create_text(
-    883.5, 337.0,
-    text = "Entrada",
-    fill = "#000000",
-    font = ("None", int(24.0)))
-
-canvas.create_text(
-    875.0, 454.0,
-    text = "Salida",
-    fill = "#000000",
-    font = ("None", int(24.0)))
 
 
-background_img2 = PhotoImage(file = f"img6.png")
-background = canvas.create_image(
-    876.0, 664.5,
-    image=background_img2)
 
-canvas.create_text(
-    838.0, 667.5,
-    text = "Lps.",
-    fill = "#000000",
-    font = ("None", int(18.0)))
 
-canvas.create_text(
-    896.0, 667.5,
-    text = "1000",
-    fill = "#000000",
-    font = ("None", int(18.0)))
 
-window.resizable(False, False)
-window.mainloop()
+
+############################################################################################################
+
+        # Create a Frame for the Checkbuttons
+        self.check_frame = ttk.LabelFrame(self, text="Ticket", padding=(20, 10))
+        self.check_frame.grid(
+            row=0, column=4, padx=(20, 10), pady=(20, 10), sticky="nsew"
+        )
+         # Entry
+        self.entry = ttk.Entry(self.check_frame)
+        self.entry.insert(0, "Ticket")        
+        self.entry.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+        
+        # Accentbutton
+        self.accentbutton = ttk.Button(
+            self.check_frame, text="Generar", style="Accent.TButton"
+        )
+        self.accentbutton.grid(row=2, column=0, padx=5, pady=10, sticky="nsew")        
+       
+
+        # Separator
+        self.separator = ttk.Separator(self)
+        self.separator.grid(row=1, column=4, padx=(20, 10), pady=10, sticky="ew")
+
+        # Create a Frame for the Radiobuttons
+        self.radio_frame = ttk.LabelFrame(self, text="Valor de ticket", padding=(20, 10))
+        self.radio_frame.grid(row=2, column=4, padx=(20, 10), pady=10, sticky="nsew")
+
+          # Entry
+        self.entry = ttk.Entry(self.radio_frame)
+        self.entry.insert(0, "Entrada")        
+        self.entry.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+        
+          # Entry
+        self.entry = ttk.Entry(self.radio_frame)
+        self.entry.insert(0, "Salida")        
+        self.entry.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+
+          # Entry
+        self.entry = ttk.Entry(self.radio_frame)
+        self.entry.insert(0, "Costo total")        
+        self.entry.grid(row=3, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+        
+        # Accentbutton
+        self.accentbutton = ttk.Button(
+            self.radio_frame, text="Calcular costo", style="Accent.TButton"
+        )
+        self.accentbutton.grid(row=4, column=0, padx=5, pady=10, sticky="nsew")        
+       
+
+        
+
+        # Create a Frame for input widgets
+        self.widgets_frame = ttk.Frame(self, padding=(0, 0, 0, 10))
+        self.widgets_frame.grid(
+            row=0, column=1, padx=10, pady=(30, 10), sticky="nsew", rowspan=3
+        )
+        self.widgets_frame.columnconfigure(index=0, weight=1)
+
+
+        # Entry
+        ShowPlaca = self.entry = ttk.Entry(self.widgets_frame)
+        self.entry.insert(0, "Placa")
+        self.entry.grid(row=0, column=0, padx=5, pady=(0, 10), sticky="ew")
+
+
+        # Entry
+        ValorTime = self.entry = ttk.Entry(self.widgets_frame)
+        self.entry.insert(0, "Fecha/Hora")
+        self.entry.grid(row=5, column=0, padx=5, pady=(0, 10), sticky="ew")
+
+        # Button
+        self.button = ttk.Button(self.widgets_frame, text="Obtener lectura")
+        self.button.grid(row=6, column=0, padx=5, pady=10, sticky="nsew")
+
+        # Accentbutton
+        self.accentbutton = ttk.Button(
+            self.widgets_frame, text="Registrar", style="Accent.TButton", command=obj_db1.show_one_record
+        )
+        self.accentbutton.grid(row=7, column=0, padx=5, pady=10, sticky="nsew")
+
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.title("Sistema de control de placas de vehiculos en estacionamiento")
+
+    # Simply set the theme
+    root.tk.call("source", "sun-valley.tcl")
+    root.tk.call("set_theme", "dark")
+
+    app = App(root)
+    app.pack(fill="both", expand=True)
+
+    # Set a minsize for the window, and place it in the middle
+    root.update()
+    root.minsize(root.winfo_width(), root.winfo_height())
+    x_cordinate = int((root.winfo_screenwidth() / 2) - (root.winfo_width() / 2))
+    y_cordinate = int((root.winfo_screenheight() / 2) - (root.winfo_height() / 2))
+    root.geometry("+{}+{}".format(x_cordinate, y_cordinate))
+
+    root.mainloop()
