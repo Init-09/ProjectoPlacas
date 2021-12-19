@@ -9,6 +9,10 @@ from PIL import ImageTk
 import cv2
 import imutils
 from datetime import datetime
+import string
+import random
+from datetime import datetime
+from tkinter.constants import S
 
 class App(ttk.Frame):
     def __init__(self, parent):
@@ -68,7 +72,7 @@ class App(ttk.Frame):
                     ShowPlaca.insert(1, Autos[1])
                     ValorTime.delete(0, 'end')
                     now = datetime.now()
-                    date_time = now.strftime("%m/%d/%Y %H:%M:%S")
+                    date_time = now.strftime("%Y-%m-%d %H:%M:%S")
                     ValorTime.insert(1, date_time)
                     # ShowNombre.delete(0, 'end')
                     # ShowNombre.insert(1, Autos[1])
@@ -112,6 +116,7 @@ class App(ttk.Frame):
             cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
             visualizar()
         def visualizar():
+            
             global cap
             if cap is not None:
                 ret, frame = cap.read()
@@ -183,15 +188,45 @@ class App(ttk.Frame):
             row=0, column=4, padx=(20, 10), pady=(20, 10), sticky="nsew"
         )
          # Entry
-        self.entry = ttk.Entry(self.check_frame)
+        ShowTicket = self.entry = ttk.Entry(self.check_frame)
         self.entry.insert(0, "Ticket")        
         self.entry.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="nsew") 
         
+        def ticket():
+            length_of_string = 8
+            ticket=""
+            ticket=ticket.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(length_of_string))
+            ShowTicket.delete(0, 'end')
+            ShowTicket.insert(1, ticket)
+
+
         # Accentbutton
         self.accentbutton = ttk.Button(
-            self.check_frame, text="Generar", style="Accent.TButton"
+            self.check_frame, text="Generar", style="Accent.TButton", command=ticket
         )
-        self.accentbutton.grid(row=2, column=0, padx=5, pady=10, sticky="nsew")        
+        self.accentbutton.grid(row=2, column=0, padx=5, pady=10, sticky="nsew")
+
+
+
+        def calcularelcosto():
+            s = SalidaShow.get()
+            s = str(s)
+            Salida = datetime.fromisoformat(s)
+            s1 = EntradaShow.get()
+            s1 = str(s1)
+            Entrada = datetime.fromisoformat(s1)
+            diferencia = (Salida - Entrada)
+            diferencia = (round(diferencia.total_seconds() * 0.000277778))*12
+            diferencia = str(diferencia) + " Lps"
+            Total.delete(0,'end')
+            Total.insert(1,diferencia)
+
+
+        # Accentbutton
+        self.accentbutton = ttk.Button(
+            self.check_frame, text="Calcular Costo", style="Accent.TButton", command=calcularelcosto
+        )
+        self.accentbutton.grid(row=3, column=0, padx=5, pady=10, sticky="nsew")               
        
 
         # Separator
@@ -203,23 +238,23 @@ class App(ttk.Frame):
         self.radio_frame.grid(row=2, column=4, padx=(20, 10), pady=10, sticky="nsew")
 
           # Entry
-        self.entry = ttk.Entry(self.radio_frame)
+        EntradaShow=self.entry = ttk.Entry(self.radio_frame)
         self.entry.insert(0, "Entrada")        
         self.entry.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="nsew") 
         
           # Entry
-        self.entry = ttk.Entry(self.radio_frame)
+        SalidaShow=self.entry = ttk.Entry(self.radio_frame)
         self.entry.insert(0, "Salida")        
         self.entry.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="nsew") 
 
           # Entry
-        self.entry = ttk.Entry(self.radio_frame)
+        Total = self.entry = ttk.Entry(self.radio_frame)
         self.entry.insert(0, "Costo total")        
         self.entry.grid(row=3, column=0, padx=5, pady=(0, 10), sticky="nsew") 
         
         # Accentbutton
         self.accentbutton = ttk.Button(
-            self.radio_frame, text="Calcular costo", style="Accent.TButton"
+            self.radio_frame, text="Registrar Salida", style="Accent.TButton"
         )
         self.accentbutton.grid(row=4, column=0, padx=5, pady=10, sticky="nsew")        
        
@@ -251,7 +286,7 @@ class App(ttk.Frame):
 
         # Accentbutton
         self.accentbutton = ttk.Button(
-            self.widgets_frame, text="Registrar", style="Accent.TButton", command=obj_db1.show_one_record
+            self.widgets_frame, text="Registrar Entrada", style="Accent.TButton", command=obj_db1.show_one_record
         )
         self.accentbutton.grid(row=7, column=0, padx=5, pady=10, sticky="nsew")
 
