@@ -91,7 +91,19 @@ class App(ttk.Frame):
                     try:
                         self.cursor.execute(sql)
                         self.connection.commit()   
-                        messagebox.showinfo("inf", "Registro exitoso")                            
+                        messagebox.showinfo("inf", "Registro exitoso")   
+                        ShowPlaca.delete(0,'end')
+                        ShowPlaca.insert(1, 'Placa')
+                        ValorTime.delete(0,'end')
+                        ValorTime.insert(1, 'Fecha/Hora')
+                        ShowTicket.delete(0,'end')
+                        ShowTicket.insert(1, 'Ticket')
+                        EntradaShow.delete(0,'end')
+                        EntradaShow.insert(1, 'Entrada')
+                        SalidaShow.delete(0,'end')
+                        SalidaShow.insert(1, 'Salida')
+                        Total.delete(0,'end')
+                        Total.insert(1, 'Costo total')                         
                         return
                     except Exception as e:
                         raise
@@ -182,7 +194,19 @@ class App(ttk.Frame):
                     try:
                         self.cursor.execute(sql)
                         self.connection.commit()   
-                        messagebox.showinfo("inf", "Registro exitoso")                            
+                        messagebox.showinfo("inf", "Registro exitoso")
+                        ShowPlaca.delete(0,'end')
+                        ShowPlaca.insert(1, 'Placa')
+                        ValorTime.delete(0,'end')
+                        ValorTime.insert(1, 'Fecha/Hora')
+                        ShowTicket.delete(0,'end')
+                        ShowTicket.insert(1, 'Ticket')
+                        EntradaShow.delete(0,'end')
+                        EntradaShow.insert(1, 'Entrada')
+                        SalidaShow.delete(0,'end')
+                        SalidaShow.insert(1, 'Salida')
+                        Total.delete(0,'end')
+                        Total.insert(1, 'Costo total')                            
                         return
                     except Exception as e:
                         raise
@@ -324,8 +348,12 @@ class App(ttk.Frame):
             length_of_string = 8
             ticket=""
             ticket=ticket.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(length_of_string))
-            ShowTicket.delete(0, 'end')
-            ShowTicket.insert(1, ticket)
+            check = ShowTicket.get()
+            if check == "Ticket":
+                ShowTicket.delete(0, 'end')
+                ShowTicket.insert(1, ticket)
+            else:                
+                messagebox.showinfo("inf", "Ya tiene ticket")
 
 
         # Accentbutton
@@ -388,7 +416,7 @@ class App(ttk.Frame):
             if (valor=="Costo total"):
                 messagebox.showinfo("inf", "Primero calcule el costo del ticket") 
             else:
-                obj_db1.update_record(ticket,salida,valor)
+                obj_db1.update_record(ticket,salida,valor)                
 
         # Accentbutton
         self.accentbutton = ttk.Button(
