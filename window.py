@@ -319,13 +319,94 @@ class App(ttk.Frame):
 
         # Tab #2
         self.tab_2 = ttk.Frame(self.notebook)
+        for index in [0, 1]:
+            self.tab_2.columnconfigure(index=index, weight=1)
+            self.tab_2.rowconfigure(index=index, weight=5)        
         self.notebook.add(self.tab_2, text="Reporte de concurrentes")
+
+         
+        # Label
+        self.label = ttk.Label(
+            self.tab_2,
+            text="Reporte por Cliente",
+            justify="center",
+            font=("-size", 15, "-weight", "bold"),
+        )
+        self.label.grid(row=0, column=0, pady=10, columnspan=2, sticky="nsew")
+
+        
+        # Entry
+        Pplaca=self.entry = ttk.Entry(self.tab_2)
+        self.entry.insert(0, "Placa a buscar")        
+        self.entry.grid(row=0, column=2, padx=5, pady=(0, 10), sticky="nsew") 
+        # Entry
+        placanombre=self.entry = ttk.Entry(self.tab_2)
+        self.entry.insert(0, "Nombre")        
+        self.entry.grid(row=3, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+        # Entry
+        placamodelo=self.entry = ttk.Entry(self.tab_2)
+        self.entry.insert(0, "Modelo")        
+        self.entry.grid(row=4, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+        # Entry
+        placaanio=self.entry = ttk.Entry(self.tab_2)
+        self.entry.insert(0, "Año")        
+        self.entry.grid(row=5, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+        # Entry
+        placapago=self.entry = ttk.Entry(self.tab_2)
+        self.entry.insert(0, "Pago al dia")        
+        self.entry.grid(row=6, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+
+
+          # Button
+        self.button = ttk.Button(self.tab_2, text="Generar reporte", command=leerplaca)
+        self.button.grid(row=6, column=2, padx=5, pady=10, sticky="nsew")
 
         
 
         # Tab #3
         self.tab_3 = ttk.Frame(self.notebook)
+        for index in [0, 1]:
+            self.tab_3.columnconfigure(index=index, weight=1)
+            self.tab_3.rowconfigure(index=index, weight=1)
         self.notebook.add(self.tab_3, text="Reporte de ticekt ocacional")
+        
+        
+        # Label
+        self.label = ttk.Label(
+            self.tab_3,
+            text="Reporte por Ticket",
+            justify="center",
+            font=("-size", 15, "-weight", "bold"),
+        )
+        self.label.grid(row=0, column=0, pady=10, columnspan=2, sticky="nsew")
+
+        
+        # Entry
+        Tticket=self.entry = ttk.Entry(self.tab_3)
+        self.entry.insert(0, "Ticket a buscar")        
+        self.entry.grid(row=0, column=2, padx=5, pady=(0, 10), sticky="nsew") 
+        # Entry
+        placaticket=self.entry = ttk.Entry(self.tab_3)
+        self.entry.insert(0, "Placa")        
+        self.entry.grid(row=3, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+        # Entry
+        entradaticket=self.entry = ttk.Entry(self.tab_3)
+        self.entry.insert(0, "Entrada")        
+        self.entry.grid(row=4, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+        # Entry
+        salidaticket=self.entry = ttk.Entry(self.tab_3)
+        self.entry.insert(0, "Salida")        
+        self.entry.grid(row=5, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+        # Entry
+        costoticket=self.entry = ttk.Entry(self.tab_3)
+        self.entry.insert(0, "Gasto Total")        
+        self.entry.grid(row=6, column=0, padx=5, pady=(0, 10), sticky="nsew") 
+
+
+          # Button
+        self.button = ttk.Button(self.tab_3, text="Generar reporte", command=leerplaca)
+        self.button.grid(row=6, column=2, padx=5, pady=10, sticky="nsew")
+        # Button
 
         # Sizegrip
         self.sizegrip = ttk.Sizegrip(self)
