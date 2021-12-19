@@ -12,7 +12,9 @@ from datetime import datetime
 import string
 import random
 from datetime import datetime
+from tkinter import messagebox
 from tkinter.constants import S
+import pytesseract
 
 class App(ttk.Frame):
     def __init__(self, parent):
@@ -74,10 +76,6 @@ class App(ttk.Frame):
                     now = datetime.now()
                     date_time = now.strftime("%Y-%m-%d %H:%M:%S")
                     ValorTime.insert(1, date_time)
-                    # ShowNombre.delete(0, 'end')
-                    # ShowNombre.insert(1, Autos[1])
-                    # ShowEmail.delete(0, 'end')
-                    # ShowEmail.insert(1, Autos[2])
                     print("_______________")
                     print("Ticket:",Ticket)
                     print("Placa:",Placa)
@@ -88,6 +86,106 @@ class App(ttk.Frame):
                     return
                 except Exception as e:
                     raise
+            def update_record(self,tickets,salida, valor):   
+                    sql="UPDATE usuarios_ocacionales SET Salida = '{}', Valortiket = '{}' WHERE usuarios_ocacionales.Tiket = '{}'".format(salida,valor,tickets)
+                    try:
+                        self.cursor.execute(sql)
+                        self.connection.commit()   
+                        messagebox.showinfo("inf", "Registro exitoso")                            
+                        return
+                    except Exception as e:
+                        raise
+            def show_record(self,placa):           
+                    sql="select * from usuarios_recurrentes where Placa LIKE '%{}%'".format(placa)
+                    try:
+                        self.cursor.execute(sql)
+                        rows_count = self.cursor.execute(sql)
+                        if rows_count >0:
+                            Autos = self.cursor.fetchone()                                       
+                            Placa = Autos[0]
+                            Nombre = Autos[1]                    
+                            Modelo = Autos[2]
+                            Anio = Autos[3]
+                            Pago = Autos[4]
+                            print("_______________")
+                            print("Placa:",Placa)
+                            print("Nombre:",Nombre)
+                            print("Modelo:",Modelo)
+                            print("Año:",Anio)
+                            print("Pago:",Pago)
+                            print("_______________")
+                            if (Pago > 0):
+                                messagebox.showinfo("inf", "Al dia, adelante")
+                            if (Pago == 0):                            
+                                sql="SELECT * FROM usuarios_ocacionales WHERE Placa LIKE '%{}%' AND `Salida` = '0000-00-00 00:00:00'".format(placa)
+                                try:
+                                    rows_count = self.cursor.execute(sql)
+                                    if rows_count >0:
+                                        self.cursor.execute(sql)
+                                        Autos = self.cursor.fetchone()      
+                                        print("_______________")
+                                        print("Ticket:",Autos[0])
+                                        print("Placa:",Autos[1])
+                                        print("Ingreso:",Autos[2])
+                                        print("Salida:",Autos[3])
+                                        print("Total:",Autos[4])
+                                        print("_______________")
+                                        EntradaShow.delete(0,'end')
+                                        EntradaShow.insert(1,Autos[2])
+                                        ShowTicket.delete(0,'end')
+                                        ShowTicket.insert(1,Autos[0])
+                                        now = datetime.now()
+                                        date_time = now.strftime("%Y-%m-%d %H:%M:%S")
+                                        SalidaShow.delete(0,'end')
+                                        SalidaShow.insert(1,date_time)                                          
+                                    else:
+                                        messagebox.showinfo("inf", "Por favor entrar como usuario ocasional, genere un ticket por favor")                                                                      
+
+                                    return
+                                except Exception as e:
+                                    raise
+                        else:
+                            sql="SELECT * FROM usuarios_ocacionales WHERE Placa LIKE '%{}%' AND `Salida` = '0000-00-00 00:00:00'".format(placa)
+                            try:
+                                rows_count = self.cursor.execute(sql)
+                                if rows_count >0:
+                                    self.cursor.execute(sql)
+                                    Autos = self.cursor.fetchone()      
+                                    print("_______________")
+                                    print("Ticket:",Autos[0])
+                                    print("Placa:",Autos[1])
+                                    print("Ingreso:",Autos[2])
+                                    print("Salida:",Autos[3])
+                                    print("Total:",Autos[4])
+                                    print("_______________")
+                                    EntradaShow.delete(0,'end')
+                                    EntradaShow.insert(1,Autos[2])
+                                    ShowTicket.delete(0,'end')
+                                    ShowTicket.insert(1,Autos[0])
+                                    now = datetime.now()
+                                    date_time = now.strftime("%Y-%m-%d %H:%M:%S")
+                                    SalidaShow.delete(0,'end')
+                                    SalidaShow.insert(1,date_time)                                          
+                                else:
+                                    messagebox.showinfo("inf", "Por favor entrar como usuario ocasional, genere un ticket por favor")                                                                      
+
+                                return
+                            except Exception as e:
+                                raise
+                            
+                        return
+                    except Exception as e:
+                        raise
+
+            def insert_record(self,tickets,placa, fecha):           
+                    sql="INSERT INTO usuarios_ocacionales (Tiket, Placa, Ingreso, Salida, Valortiket) VALUES ('{}', '{}', '{}', '', '');".format(tickets,placa,fecha)
+                    try:
+                        self.cursor.execute(sql)
+                        self.connection.commit()   
+                        messagebox.showinfo("inf", "Registro exitoso")                            
+                        return
+                    except Exception as e:
+                        raise
         obj_db1 = DataBase()
 
         # Panedwindow
@@ -121,6 +219,8 @@ class App(ttk.Frame):
             if cap is not None:
                 ret, frame = cap.read()
                 if ret == True:
+                    image = cv2.imread('placa.jpg')
+                    frame = image
                     frame = imutils.resize(frame, width=640)
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -142,7 +242,7 @@ class App(ttk.Frame):
             self.tab_1,           
         )
         labelimg.pack()
-        self.label.grid(row=0, column=0, pady=10, columnspan=2)
+        self.label.grid(row=0, column=0, pady=10, columnspan=4)
 
 
         # Label
@@ -154,9 +254,44 @@ class App(ttk.Frame):
         )
         self.label.grid(row=2, column=0, pady=10, columnspan=2, sticky="nsew")
 
+####################################################################################################
+        def leerplaca():
+            pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
+            placa = []
+            image = cv2.imread('placa.jpg')
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            gray = cv2.blur(gray,(3,3))
+            canny = cv2.Canny(gray,150,200)
+            canny = cv2.dilate(canny,None,iterations=1)
+            cnts,_ = cv2.findContours(canny,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+            for c in cnts:
+                area = cv2.contourArea(c)
+                x,y,w,h = cv2.boundingRect(c)
+                epsilon = 0.06*cv2.arcLength(c,True)
+                approx = cv2.approxPolyDP(c,epsilon,True)
+                if len(approx)==4 and area>9000:
+                    print('area=',area)
+                    placa = gray[y:y+h,x:x+w]
+                    text = pytesseract.image_to_string(placa)
+                    print('PLACA: ',text)
+
+            ShowPlaca.delete(0, 'end')
+            ShowPlaca.insert(1, text)
+            
+            ValorTime.delete(0, 'end')
+            now = datetime.now()
+            date_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            ValorTime.insert(1, date_time)
+            
+
+
+
+         # Button
+        self.button = ttk.Button(self.tab_1, text="Leer imagen", command=leerplaca)
+        self.button.grid(row=2, column=2, padx=5, pady=10, sticky="nsew")
         # Button
         self.button = ttk.Button(self.tab_1, text="On / Off", command=iniciar)
-        self.button.grid(row=2, column=1, padx=5, pady=10, sticky="nsew")
+        self.button.grid(row=2, column=3, padx=5, pady=10, sticky="nsew")
 
         # Tab #2
         self.tab_2 = ttk.Frame(self.notebook)
@@ -171,13 +306,6 @@ class App(ttk.Frame):
         # Sizegrip
         self.sizegrip = ttk.Sizegrip(self)
         self.sizegrip.grid(row=100, column=100, padx=(0, 5), pady=(0, 5))
-
-
-
-
-
-
-
 
 
 ############################################################################################################
@@ -252,9 +380,19 @@ class App(ttk.Frame):
         self.entry.insert(0, "Costo total")        
         self.entry.grid(row=3, column=0, padx=5, pady=(0, 10), sticky="nsew") 
         
+
+        def registrarsalida():            
+            ticket = ShowTicket.get()
+            salida = SalidaShow.get() 
+            valor = Total.get() 
+            if (valor=="Costo total"):
+                messagebox.showinfo("inf", "Primero calcule el costo del ticket") 
+            else:
+                obj_db1.update_record(ticket,salida,valor)
+
         # Accentbutton
         self.accentbutton = ttk.Button(
-            self.radio_frame, text="Registrar Salida", style="Accent.TButton"
+            self.radio_frame, text="Registrar Salida", style="Accent.TButton", command=registrarsalida
         )
         self.accentbutton.grid(row=4, column=0, padx=5, pady=10, sticky="nsew")        
        
@@ -280,13 +418,33 @@ class App(ttk.Frame):
         self.entry.insert(0, "Fecha/Hora")
         self.entry.grid(row=5, column=0, padx=5, pady=(0, 10), sticky="ew")
 
+
+        def revisardatosdellector():           
+            placa = ShowPlaca.get() 
+            obj_db1.show_record(placa)     
+
         # Button
-        self.button = ttk.Button(self.widgets_frame, text="Obtener lectura")
+        self.button = ttk.Button(self.widgets_frame, text="Analizar", command=revisardatosdellector)
         self.button.grid(row=6, column=0, padx=5, pady=10, sticky="nsew")
+        
+
+        def registrarentrada():           
+            fechaentrada=EntradaShow.get()
+            ticket = ShowTicket.get()
+            placa = ShowPlaca.get() 
+            fecha = ValorTime.get() 
+            if (ticket=="Ticket"):
+                messagebox.showinfo("inf", "Primero genere ticket") 
+            else:
+                if (fechaentrada=="Entrada"):
+                    obj_db1.insert_record(ticket,placa,fecha) 
+                else:
+                    messagebox.showinfo("inf", "Debe registrar salida no entrada")
+                    
 
         # Accentbutton
         self.accentbutton = ttk.Button(
-            self.widgets_frame, text="Registrar Entrada", style="Accent.TButton", command=obj_db1.show_one_record
+            self.widgets_frame, text="Registrar Entrada", style="Accent.TButton", command=registrarentrada
         )
         self.accentbutton.grid(row=7, column=0, padx=5, pady=10, sticky="nsew")
 
