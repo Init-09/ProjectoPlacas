@@ -60,6 +60,46 @@ class App(ttk.Frame):
                 print("Conexion Exitosa!!!")
                 print("#################")
 
+            def reportocacional(self,tickets): 
+                sql="select * from usuarios_ocacionales where Tiket LIKE '%{}%'".format(tickets)
+                try:
+                    self.cursor.execute(sql)
+                    Autos = self.cursor.fetchone()                       
+                    placaticket.delete(0, 'end')
+                    placaticket.insert(1, Autos[1])    
+                    entradaticket.delete(0, 'end')
+                    entradaticket.insert(1, Autos[2])  
+                    salidaticket.delete(0, 'end')
+                    salidaticket.insert(1, Autos[3])  
+                    costoticket.delete(0, 'end')
+                    costoticket.insert(1, Autos[4])                  
+                    return
+                except Exception as e:
+                    raise
+
+            def reportrecurrent(self,placa): 
+                sql="select * from usuarios_recurrentes where Placa LIKE '%{}%'".format(placa)
+                try:
+                    self.cursor.execute(sql)
+                    Autos = self.cursor.fetchone()                       
+                    placanombre.delete(0, 'end')
+                    placanombre.insert(1, Autos[1])    
+                    placamodelo.delete(0, 'end')
+                    placamodelo.insert(1, Autos[2])  
+                    placaanio.delete(0, 'end')
+                    placaanio.insert(1, Autos[3])  
+                    placapago.delete(0, 'end')
+                    checdia = Autos[4]
+                    if (int(checdia) > 0):
+                        placapago.insert(1, "Pago al dia")   
+                    else: 
+                        placapago.insert(1, "Pago retrasado")
+                    return
+                except Exception as e:
+                    raise
+
+
+
             def show_one_record(self):                
                 sql="select * from usuarios_ocacionales where Placa LIKE 'HAB2649'"
                 try:
@@ -356,9 +396,11 @@ class App(ttk.Frame):
         self.entry.insert(0, "Pago al dia")        
         self.entry.grid(row=6, column=0, padx=5, pady=(0, 10), sticky="nsew") 
 
-
+        def reporterecuren():
+            enviar = Pplaca.get()
+            obj_db1.reportrecurrent(enviar)
           # Button
-        self.button = ttk.Button(self.tab_2, text="Generar reporte", command=leerplaca)
+        self.button = ttk.Button(self.tab_2, text="Generar reporte", command=reporterecuren)
         self.button.grid(row=6, column=2, padx=5, pady=10, sticky="nsew")
 
         
@@ -402,9 +444,13 @@ class App(ttk.Frame):
         self.entry.insert(0, "Gasto Total")        
         self.entry.grid(row=6, column=0, padx=5, pady=(0, 10), sticky="nsew") 
 
+        def reporteocacional():
+            enviar = Tticket.get()
+            obj_db1.reportocacional(enviar)            
+       
 
           # Button
-        self.button = ttk.Button(self.tab_3, text="Generar reporte", command=leerplaca)
+        self.button = ttk.Button(self.tab_3, text="Generar reporte", command=reporteocacional)
         self.button.grid(row=6, column=2, padx=5, pady=10, sticky="nsew")
         # Button
 
